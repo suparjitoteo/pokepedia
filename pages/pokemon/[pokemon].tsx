@@ -7,6 +7,7 @@ import PokemonCatchModal from "@component/pokemon/pokemon-catch-modal";
 import Head from "next/head";
 import { PokemonDetailFallback } from "@component/pokemon/pokemon-detail-fallback";
 import { PokemonDetailView } from "@component/pokemon/pokemon-detail-view";
+import { PokemonDetailNotFound } from "@component/pokemon/pokemon-detail-404";
 
 const PokemonDetail = () => {
   const router = useRouter();
@@ -26,7 +27,7 @@ const PokemonDetail = () => {
   }
 
   if (!data) {
-    return <p>Pokemon not found !</p>;
+    return <PokemonDetailNotFound />;
   }
 
   console.log(data);
@@ -42,13 +43,12 @@ const PokemonDetail = () => {
       <PokemonDetailView data={data} />
       <Button
         position="fixed"
-        size="sm"
         colorScheme="green"
         boxShadow="base"
         borderRadius="full"
         fontWeight="bold"
         onClick={onOpen}
-        bottom={6}
+        bottom={8}
         left={0}
         right={0}
         mx="auto"

@@ -14,9 +14,12 @@ import { getPokemonList } from "@utils/api";
 import _ from "lodash";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useQuery } from "react-query";
+import Image from "next/image";
 
 const PokemonList = () => {
+  const router = useRouter();
   return (
     <>
       <Head>
@@ -24,7 +27,14 @@ const PokemonList = () => {
       </Head>
       <header>
         <Title>POKEPEDIA</Title>
-        <SearchInput mt={4} />
+        <SearchInput
+          mt={4}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              router.push(`/pokemon/${e.currentTarget.value}`);
+            }
+          }}
+        />
       </header>
       <Box as={"main"} mt={8}>
         <Flex alignItems="baseline">
@@ -45,6 +55,35 @@ const PokemonList = () => {
 
 const MyPokemonGrid = () => {
   const [pokemonList] = useGetPokemonList({ limit: 4 });
+
+  if (pokemonList.length === 0) {
+    return (
+      <Flex
+        mt={2}
+        p={4}
+        px={8}
+        pt={6}
+        backgroundColor="whiteAlpha.800"
+        borderRadius="lg"
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+      >
+        <Image
+          src="/images/pokeball-background.png"
+          alt="No pokemon placeholder"
+          width={60}
+          height={60}
+          layout="fixed"
+        />
+        <Text mt={2} fontWeight="semibold">
+          {"You don't have any pokemon yet."}
+        </Text>
+        <Text fontWeight="semibold">{" Go catch some !"}</Text>
+      </Flex>
+    );
+  }
 
   return (
     <Flex
@@ -91,6 +130,7 @@ const PokemonGrid = () => {
         {data?.results.map((pokemon) => (
           <Link key={pokemon.name} href={`/pokemon/${pokemon.name}`} passHref>
             <Box
+              as="a"
               boxShadow="base"
               backgroundColor="white"
               px={4}
