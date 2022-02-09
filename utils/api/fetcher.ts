@@ -1,6 +1,6 @@
 import { KeyValueType } from "@type/common-type";
 
-const BASE_URL = "https://pokeapi.co/api/v2/";
+export const BASE_URL = "https://pokeapi.co/api/v2/";
 
 export const fetcher = async <T>(url: string): Promise<T> => {
   if (url.startsWith("/")) {
