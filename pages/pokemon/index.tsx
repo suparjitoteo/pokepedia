@@ -11,15 +11,22 @@ import { SearchInput } from "@component/search-input";
 import { Title } from "@component/title";
 import { useGetPokemonList } from "@hooks/use-pokemon";
 import { getPokemonList } from "@utils/api";
-import _ from "lodash";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 import Image from "next/image";
+import { getPokemonTotal } from "@utils/db";
+import { useEffect, useState } from "react";
 
 const PokemonList = () => {
-  const router = useRouter();
+  const [inputSearch, setInputSearch] = useState("");
+  const [pokemonTotal, setPokemonTotal] = useState(0);
+
+  useEffect(() => {
+    getPokemonTotal().then((info) => setPokemonTotal(info.doc_count));
+  }, []);
+
   return (
     <>
       <Head>
@@ -27,19 +34,18 @@ const PokemonList = () => {
       </Head>
       <header>
         <Title>POKEPEDIA</Title>
-        <SearchInput
-          mt={4}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              router.push(`/pokemon/${e.currentTarget.value}`);
-            }
-          }}
-        />
+        <form action={`/pokemon/${inputSearch.toLowerCase()}`} method="POST">
+          <SearchInput
+            mt={4}
+            value={inputSearch}
+            onChange={(e) => setInputSearch(e.target.value)}
+          />
+        </form>
       </header>
       <Box as={"main"} mt={8}>
         <Flex alignItems="baseline">
           <Text fontSize="2xl" fontWeight="bold">
-            My Pokemon
+            My Pokemon ({pokemonTotal})
           </Text>
           <ChakraLink as="p" color="blue" ml="auto">
             <Link href="/my-pokemon">See All</Link>
@@ -140,7 +146,9 @@ const PokemonGrid = () => {
               _active={{ bg: "gray.200" }}
               borderRadius="lg"
             >
-              <Text fontSize="lg">{_.startCase(pokemon.name)}</Text>
+              <Text fontSize="lg" textTransform="capitalize">
+                {pokemon.name}
+              </Text>
             </Box>
           </Link>
         ))}

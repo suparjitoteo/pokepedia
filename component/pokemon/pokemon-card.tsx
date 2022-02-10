@@ -1,7 +1,7 @@
 import { Box, Text } from "@chakra-ui/react";
-import _ from "lodash";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { useGetBackgroundColor } from "../../hooks/use-get-background-color";
 import { IPokemon } from "../../types/pokemon-type";
 import { generateColor } from "../../utils/common";
@@ -9,8 +9,10 @@ import { generateColor } from "../../utils/common";
 export const PokemonCard = ({ pokemon }: { pokemon: IPokemon }) => {
   const pokemonImageUrl =
     pokemon.sprites.other["official-artwork"].front_default;
+  const [imgSrc, setImgSrc] = useState<string>("");
+
   const backgroundColor = useGetBackgroundColor({
-    imageUrl: pokemonImageUrl,
+    imgSrc,
   });
   const headerTextColor = generateColor(backgroundColor);
 
@@ -24,6 +26,12 @@ export const PokemonCard = ({ pokemon }: { pokemon: IPokemon }) => {
         position="relative"
         overflow="hidden"
         transition="background-color 0.5s, color 0.5s"
+        cursor="pointer"
+        _hover={{
+          transform: "scale(1.1)",
+          transition: "transform 300ms",
+        }}
+        willChange="transform"
       >
         <Box position="absolute" top={-3} right={2}>
           <Image
@@ -33,15 +41,17 @@ export const PokemonCard = ({ pokemon }: { pokemon: IPokemon }) => {
             alt={pokemon.name}
             placeholder="blur"
             blurDataURL={pokemon.sprites.front_default}
+            onLoad={(e) => {
+              setImgSrc(e.currentTarget.src);
+            }}
           />
         </Box>
-        <Box position="relative">
+        <Box position="relative" textTransform="capitalize">
           <Text fontSize="lg" fontWeight="semibold">
-            #{_.padStart(pokemon.order.toString(), 3, "0")}{" "}
-            {_.startCase(pokemon.name)}
+            #{pokemon.order.toString().padStart(3, "0")} {pokemon.name}
           </Text>
           <Text fontSize="2xl" fontWeight="bold">
-            {_.startCase(pokemon.nickname)}
+            {pokemon.nickname}
           </Text>
         </Box>
       </Box>

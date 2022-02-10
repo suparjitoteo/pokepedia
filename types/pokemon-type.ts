@@ -14,7 +14,7 @@ export interface IPokemon {
   id: number;
   moves: {
     move: INamedResponse;
-    version_group_details: {
+    version_group_details?: {
       level_learned_at: number;
       move_learn_method: INamedResponse;
       version_group: INamedResponse;

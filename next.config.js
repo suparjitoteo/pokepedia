@@ -12,6 +12,11 @@ const nextConfig = {
   },
   images: {
     domains: ["raw.githubusercontent.com"],
+    minimumCacheTTL: 86400,
+  },
+  i18n: {
+    locales: ["en"],
+    defaultLocale: "en",
   },
 };
 

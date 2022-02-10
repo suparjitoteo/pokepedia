@@ -2,10 +2,10 @@ import { prominent } from "color.js";
 import { useEffect, useRef, useState } from "react";
 
 export const useGetBackgroundColor = ({
-  imageUrl,
+  imgSrc,
   defaultValue = "#FFF",
 }: {
-  imageUrl?: string;
+  imgSrc?: string;
   defaultValue?: string;
 }) => {
   const [backgroundColor, setBackgroundColor] = useState(defaultValue);
@@ -13,11 +13,11 @@ export const useGetBackgroundColor = ({
 
   useEffect(() => {
     mounted.current = true;
-    if (!imageUrl) {
+    if (!imgSrc) {
       return;
     }
 
-    prominent(imageUrl, {
+    prominent(imgSrc, {
       format: "hex",
     }).then((color) => {
       if (mounted.current) {
@@ -28,7 +28,7 @@ export const useGetBackgroundColor = ({
     return () => {
       mounted.current = false;
     };
-  }, [imageUrl]);
+  }, [imgSrc]);
 
   return backgroundColor;
 };

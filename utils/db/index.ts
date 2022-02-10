@@ -2,6 +2,10 @@ import { IPokemon } from "@type/pokemon-type";
 import PouchDB from "pouchdb";
 const db = new PouchDB("pokemon", { size: 50 });
 
+export const getPokemonTotal = async () => {
+  return await db.info();
+};
+
 export const getAllPokemon = async ({ limit }: { limit?: number } = {}) => {
   const data = await db.allDocs({
     include_docs: true,

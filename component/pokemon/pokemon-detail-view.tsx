@@ -16,14 +16,17 @@ import { Title } from "@component/title";
 import { useGetBackgroundColor } from "@hooks/use-get-background-color";
 import { IPokemon } from "@type/pokemon-type";
 import { generateColor } from "@utils/common";
-import _ from "lodash";
 import Image from "next/image";
 import router from "next/router";
+import { useState } from "react";
 import { FaChevronCircleLeft } from "react-icons/fa";
 
 export const PokemonDetailView = ({ data }: { data: IPokemon }) => {
+  const pokemonImageUrl = data?.sprites.other["official-artwork"].front_default;
+
+  const [imgSrc, setImgSrc] = useState<string>("");
   const backgroundColor = useGetBackgroundColor({
-    imageUrl: data?.sprites.other["official-artwork"].front_default,
+    imgSrc,
   });
 
   const headerTextColor = generateColor(backgroundColor);
@@ -54,7 +57,7 @@ export const PokemonDetailView = ({ data }: { data: IPokemon }) => {
           onClick={() => router.back()}
           leftIcon={<Icon as={FaChevronCircleLeft} boxSize={[4, 6]} />}
         >
-          <Title>{_.startCase(data.name)}</Title>
+          <Title>{data.name}</Title>
         </Button>
         <Text
           ml="auto"
@@ -62,18 +65,21 @@ export const PokemonDetailView = ({ data }: { data: IPokemon }) => {
           color={headerTextColor}
           fontSize={["md", "lg"]}
         >
-          #{_.padStart(data.order.toString(), 3, "0")}
+          #{data.order.toString().padStart(3, "0")}
         </Text>
       </Flex>
       <Flex as="main" position="relative" mt={4} direction="column">
         <Box margin="auto" borderRadius="base">
           <Image
-            src={data.sprites.other["official-artwork"].front_default}
+            src={pokemonImageUrl}
             alt={data.name}
             width={250}
             height={250}
             placeholder="blur"
             blurDataURL={data.sprites.front_default}
+            onLoad={(e) => {
+              setImgSrc(e.currentTarget.src);
+            }}
           />
         </Box>
         <Flex justifyContent="center" p={2} gap={2}>

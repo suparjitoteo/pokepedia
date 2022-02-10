@@ -1,5 +1,4 @@
 import { Button, useDisclosure } from "@chakra-ui/react";
-import _ from "lodash";
 import PokemonCatchModal from "@component/pokemon/pokemon-catch-modal";
 import Head from "next/head";
 import { PokemonDetailView } from "@component/pokemon/pokemon-detail-view";
@@ -7,6 +6,7 @@ import { PokemonDetailNotFound } from "@component/pokemon/pokemon-detail-404";
 import { BASE_URL } from "@utils/api/fetcher";
 import { INamedResponse, IPokemon } from "@type/pokemon-type";
 import { GetStaticPropsContext } from "next";
+import { fetcher } from "@utils/api/fetcher";
 
 const PokemonDetail = ({ data, error }: { data: IPokemon; error: any }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -15,12 +15,10 @@ const PokemonDetail = ({ data, error }: { data: IPokemon; error: any }) => {
     return <PokemonDetailNotFound />;
   }
 
-  console.log(data);
-
   return (
     <>
       <Head>
-        <title>{_.startCase(data.name)}</title>
+        <title style={{ textTransform: "capitalize" }}>{data.name}</title>
       </Head>
       {isOpen && (
         <PokemonCatchModal data={data} isOpen={isOpen} onClose={onClose} />
@@ -60,11 +58,14 @@ export const getStaticPaths = async () => {
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   try {
     const { pokemon } = context.params ?? {};
-    const res = await fetch(`${BASE_URL}pokemon/${pokemon as string}`);
-    const data = await res.json();
+    const data = await fetcher<IPokemon>(`/pokemon/${pokemon as string}`);
+
+    const moves = data?.moves.map((t) => ({ move: t.move })) ?? [];
+    const transformedData = { ...data, moves };
+
     return {
       props: {
-        data,
+        data: transformedData,
       },
     };
   } catch (error) {
