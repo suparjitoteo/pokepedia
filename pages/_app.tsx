@@ -33,16 +33,23 @@ function MyApp({ Component, pageProps }: AppProps) {
           maxW={["100%", "680px"]}
           marginX="auto"
           position="relative"
-          overflowX="hidden"
           height="100%"
         >
-          <Box position="absolute" zIndex="-1" top="-80px" right="-80px">
-            <Image
-              src="/images/pokeball-background.png"
-              alt="Background image"
-              width={300}
-              height={300}
-            />
+          <Box
+            position="absolute"
+            zIndex="-1"
+            top={0}
+            right={0}
+            overflow="hidden"
+          >
+            <Box transform="translate(80px,-80px)">
+              <Image
+                src="/images/pokeball-background.png"
+                alt="Background image"
+                width={300}
+                height={300}
+              />
+            </Box>
           </Box>
           <Component {...pageProps} />
         </Box>

@@ -13,7 +13,6 @@ import { useGetPokemonList } from "@hooks/use-pokemon";
 import { getPokemonList } from "@utils/api";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 import Image from "next/image";
 import { getPokemonTotal } from "@utils/db";
