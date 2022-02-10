@@ -1,5 +1,7 @@
 import {
   Box,
+  Button,
+  Center,
   Flex,
   Link as ChakraLink,
   SimpleGrid,
@@ -13,10 +15,11 @@ import { useGetPokemonList } from "@hooks/use-pokemon";
 import { getPokemonList } from "@utils/api";
 import Head from "next/head";
 import Link from "next/link";
-import { useQuery } from "react-query";
+import { useInfiniteQuery, useQuery } from "react-query";
 import Image from "next/image";
 import { getPokemonTotal } from "@utils/db";
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import useIntersectionObserver from "@hooks/use-intersection-observer";
 
 const PokemonList = () => {
   const [inputSearch, setInputSearch] = useState("");
@@ -114,11 +117,54 @@ const MyPokemonGrid = () => {
 };
 
 const PokemonGrid = () => {
-  const { isLoading, data, error } = useQuery(["pokemon-list"], () =>
-    getPokemonList({})
+  const {
+    status,
+    data,
+    error,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery(
+    ["pokemon-paginated"],
+    async ({ pageParam = 0 }) => {
+      const res = await getPokemonList({ offset: pageParam, limit: 25 });
+      return res;
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      getPreviousPageParam: (firstPage) => {
+        if (!firstPage.previous) {
+          return false;
+        } else {
+          const strParams = firstPage.previous.split("?")[1];
+          const searchParams = new URLSearchParams(strParams);
+          const previousOffset = searchParams.get("offset");
+          return previousOffset;
+        }
+      },
+      getNextPageParam: (lastPage) => {
+        if (!lastPage.next) {
+          return false;
+        } else {
+          const strParams = lastPage.next.split("?")[1];
+          const searchParams = new URLSearchParams(strParams);
+          const nextOffset = searchParams.get("offset");
+          return nextOffset;
+        }
+      },
+    }
   );
 
-  if (isLoading) {
+  const loadMoreButtonRef = useRef(null);
+
+  useIntersectionObserver({
+    target: loadMoreButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: !!hasNextPage,
+  });
+
+  if (status === "loading") {
     return <Loading mt={4} />;
   }
 
@@ -132,26 +178,49 @@ const PokemonGrid = () => {
         All Pokemon
       </Text>
       <SimpleGrid columns={[1, 2, 3]} gap={4} mt={4} borderRadius="base">
-        {data?.results.map((pokemon) => (
-          <Link key={pokemon.name} href={`/pokemon/${pokemon.name}`} passHref>
-            <Box
-              as="a"
-              boxShadow="base"
-              backgroundColor="white"
-              px={4}
-              py={2}
-              transition="background-color 0.2s ease-out"
-              _hover={{ bg: "gray.100" }}
-              _active={{ bg: "gray.200" }}
-              borderRadius="lg"
-            >
-              <Text fontSize="lg" textTransform="capitalize">
-                {pokemon.name}
-              </Text>
-            </Box>
-          </Link>
+        {data?.pages.map((page) => (
+          <React.Fragment key={page.next}>
+            {page.results.map((pokemon) => (
+              <Link
+                key={pokemon.name}
+                href={`/pokemon/${pokemon.name}`}
+                passHref
+              >
+                <Box
+                  as="a"
+                  boxShadow="base"
+                  backgroundColor="white"
+                  px={4}
+                  py={2}
+                  transition="background-color 0.2s ease-out"
+                  _hover={{ bg: "gray.100" }}
+                  _active={{ bg: "gray.200" }}
+                  borderRadius="lg"
+                >
+                  <Text fontSize="lg" textTransform="capitalize">
+                    {pokemon.name}
+                  </Text>
+                </Box>
+              </Link>
+            ))}
+          </React.Fragment>
         ))}
       </SimpleGrid>
+      <Center>
+        <Button
+          ref={loadMoreButtonRef}
+          onClick={() => fetchNextPage()}
+          isLoading={isFetchingNextPage}
+          disabled={!hasNextPage || isFetchingNextPage}
+          mt={4}
+        >
+          {isFetchingNextPage
+            ? "Loading..."
+            : hasNextPage
+            ? "Load More"
+            : "You have reached the end."}
+        </Button>
+      </Center>
     </>
   );
 };

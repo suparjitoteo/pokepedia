@@ -8,18 +8,22 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Center,
   Checkbox,
   Flex,
   Icon,
+  Link as ChakraLink,
   SimpleGrid,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
 import { PokemonCard } from "@component/pokemon/pokemon-card";
-import { SearchInput } from "@component/search-input";
 import { Title } from "@component/title";
 import { useGetPokemonList } from "@hooks/use-pokemon";
 import { deletePokemons } from "@utils/db";
+import { LayoutGroup, motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import { FaChevronCircleLeft } from "react-icons/fa";
@@ -93,76 +97,105 @@ const MyPokemon = () => {
         >
           <Title>My Pokemon</Title>
         </Button>
-        <SearchInput mt={4} />
       </header>
-      <Flex as="main" position="relative" mt={8} direction="column">
-        <Flex>
-          {selected.length > 0 ? (
-            <Text fontWeight="semibold">{selected.length} Selected</Text>
-          ) : (
-            <Text fontWeight="semibold">
-              You owned {pokemonList.length} pokemon(s).
-            </Text>
-          )}
-          {isEditing ? (
-            <ButtonGroup variant={"link"} ml="auto">
-              <Button color="blue.500" onClick={onEditingMode}>
-                Cancel
-              </Button>
-              <Button
-                color="red.500"
-                onClick={onOpen}
-                disabled={selected.length === 0}
-              >
-                Delete
-              </Button>
-            </ButtonGroup>
-          ) : (
-            <Button
-              variant="link"
-              ml="auto"
-              color="blue.500"
-              onClick={onEditingMode}
-            >
-              Edit
-            </Button>
-          )}
-        </Flex>
-        <SimpleGrid columns={[1, 2]} gap={4} mt={4}>
-          {pokemonList.map((pokemon) => (
-            <Flex key={pokemon.nickname} alignItems="center" gap={4}>
-              {isEditing && (
-                <Checkbox
-                  size="lg"
-                  backgroundColor="white"
-                  _before={{
-                    content: '""',
-                    position: "absolute",
-                    top: "-100%",
-                    right: "-100%",
-                    left: "-100%",
-                    bottom: "-100%",
-                  }}
-                  isChecked={!!selected.find((t) => t === pokemon.nickname)}
-                  onChange={(e) => {
-                    setSelected((prevSelected) => {
-                      if (e.target.checked) {
-                        return [...prevSelected, pokemon.nickname];
-                      } else {
-                        return prevSelected.filter(
-                          (t) => t !== pokemon.nickname
-                        );
-                      }
-                    });
-                  }}
-                />
+      <Flex as="main" position="relative" direction="column" mt={8}>
+        {pokemonList.length > 0 ? (
+          <>
+            <Flex>
+              {selected.length > 0 ? (
+                <Text fontWeight="semibold">{selected.length} Selected</Text>
+              ) : (
+                <Text fontWeight="semibold">
+                  You owned {pokemonList.length} pokemon(s).
+                </Text>
               )}
-              <Box flex={1}>
-                <PokemonCard pokemon={pokemon} />
-              </Box>
+              {isEditing ? (
+                <ButtonGroup variant={"link"} ml="auto">
+                  <Button color="blue.500" onClick={onEditingMode}>
+                    Cancel
+                  </Button>
+                  <Button
+                    color="red.500"
+                    onClick={onOpen}
+                    disabled={selected.length === 0}
+                  >
+                    Delete
+                  </Button>
+                </ButtonGroup>
+              ) : (
+                <Button
+                  variant="link"
+                  ml="auto"
+                  color="blue.500"
+                  onClick={onEditingMode}
+                >
+                  Edit
+                </Button>
+              )}
             </Flex>
-          ))}
-        </SimpleGrid>
+            <SimpleGrid columns={[1, 2]} gap={4} mt={4}>
+              <LayoutGroup>
+                {pokemonList.map((pokemon) => (
+                  <Flex
+                    as={motion.div}
+                    layout
+                    key={pokemon.nickname}
+                    alignItems="center"
+                    gap={4}
+                  >
+                    {isEditing && (
+                      <Checkbox
+                        size="lg"
+                        backgroundColor="white"
+                        _before={{
+                          content: '""',
+                          position: "absolute",
+                          top: "-100%",
+                          right: "-100%",
+                          left: "-100%",
+                          bottom: "-100%",
+                        }}
+                        isChecked={
+                          !!selected.find((t) => t === pokemon.nickname)
+                        }
+                        onChange={(e) => {
+                          setSelected((prevSelected) => {
+                            if (e.target.checked) {
+                              return [...prevSelected, pokemon.nickname];
+                            } else {
+                              return prevSelected.filter(
+                                (t) => t !== pokemon.nickname
+                              );
+                            }
+                          });
+                        }}
+                      />
+                    )}
+                    <Box flex={1}>
+                      <PokemonCard pokemon={pokemon} />
+                    </Box>
+                  </Flex>
+                ))}
+              </LayoutGroup>
+            </SimpleGrid>
+          </>
+        ) : (
+          <Center flexDirection="column" height="100%" p={8} textAlign="center">
+            <Image
+              src="/images/pikachu.png"
+              alt="No pokemon placeholder"
+              width={200}
+              height={240}
+              layout="fixed"
+            />
+            <Text mt={4} fontSize="2xl" fontWeight="semibold">
+              {"You don't have any pokemon yet."}
+            </Text>
+            <ChakraLink as="p" color="blue" fontSize="lg">
+              <Link href="/pokemon">Go catch some</Link>
+            </ChakraLink>
+          </Center>
+        )}
       </Flex>
     </>
   );

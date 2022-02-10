@@ -1,18 +1,41 @@
-import { Button, useDisclosure } from "@chakra-ui/react";
+import {
+  Button,
+  Center,
+  Text,
+  useDisclosure,
+  Link as ChakraLink,
+} from "@chakra-ui/react";
 import PokemonCatchModal from "@component/pokemon/pokemon-catch-modal";
 import Head from "next/head";
 import { PokemonDetailView } from "@component/pokemon/pokemon-detail-view";
-import { PokemonDetailNotFound } from "@component/pokemon/pokemon-detail-404";
 import { BASE_URL } from "@utils/api/fetcher";
 import { INamedResponse, IPokemon } from "@type/pokemon-type";
 import { GetStaticPropsContext } from "next";
 import { fetcher } from "@utils/api/fetcher";
+import Image from "next/image";
+import Link from "next/link";
 
 const PokemonDetail = ({ data, error }: { data: IPokemon; error: any }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   if (!data || error) {
-    return <PokemonDetailNotFound />;
+    return (
+      <Center flexDirection="column" height="100%">
+        <Image
+          src="/images/pokemon.png"
+          alt="No pokemon placeholder"
+          width={200}
+          height={80}
+          layout="fixed"
+        />
+        <Text mt={4} fontSize="2xl" fontWeight="semibold">
+          {"Pokemon not found !"}
+        </Text>
+        <ChakraLink as="p" color="blue" fontSize="lg">
+          <Link href="/pokemon">Try again</Link>
+        </ChakraLink>
+      </Center>
+    );
   }
 
   return (

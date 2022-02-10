@@ -1,4 +1,5 @@
 import { Box, Text } from "@chakra-ui/react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -17,44 +18,49 @@ export const PokemonCard = ({ pokemon }: { pokemon: IPokemon }) => {
   const headerTextColor = generateColor(backgroundColor);
 
   return (
-    <Link href={`/pokemon/${pokemon.name}`} passHref>
-      <Box
-        borderRadius="xl"
-        p={4}
-        backgroundColor={backgroundColor}
-        color={headerTextColor}
-        position="relative"
-        overflow="hidden"
-        transition="background-color 0.5s, color 0.5s"
-        cursor="pointer"
-        _hover={{
-          transform: "scale(1.1)",
-          transition: "transform 300ms",
-        }}
-        willChange="transform"
-      >
-        <Box position="absolute" top={-3} right={2}>
-          <Image
-            src={pokemonImageUrl}
-            width={130}
-            height={130}
-            alt={pokemon.name}
-            placeholder="blur"
-            blurDataURL={pokemon.sprites.front_default}
-            onLoad={(e) => {
-              setImgSrc(e.currentTarget.src);
-            }}
-          />
+    <motion.div layout>
+      <Link href={`/pokemon/${pokemon.name}`} passHref>
+        <Box
+          as={motion.div}
+          layout
+          borderRadius="xl"
+          p={4}
+          backgroundColor={backgroundColor}
+          color={headerTextColor}
+          position="relative"
+          overflow="hidden"
+          transition="background-color 0.5s, color 0.5s, transform 200ms"
+          cursor="pointer"
+          transform="scale(1)"
+          _hover={{
+            transform: "scale(1.03)",
+            transition: "transform 100ms",
+          }}
+          willChange="transform"
+        >
+          <Box as={motion.div} position="absolute" top={-3} right={2} layout>
+            <Image
+              src={pokemonImageUrl}
+              width={130}
+              height={130}
+              alt={pokemon.name}
+              placeholder="blur"
+              blurDataURL={pokemon.sprites.front_default}
+              onLoad={(e) => {
+                setImgSrc(e.currentTarget.src);
+              }}
+            />
+          </Box>
+          <Box position="relative" textTransform="capitalize">
+            <Text fontSize="lg" fontWeight="semibold">
+              #{pokemon.order.toString().padStart(3, "0")} {pokemon.name}
+            </Text>
+            <Text fontSize="2xl" fontWeight="bold">
+              {pokemon.nickname}
+            </Text>
+          </Box>
         </Box>
-        <Box position="relative" textTransform="capitalize">
-          <Text fontSize="lg" fontWeight="semibold">
-            #{pokemon.order.toString().padStart(3, "0")} {pokemon.name}
-          </Text>
-          <Text fontSize="2xl" fontWeight="bold">
-            {pokemon.nickname}
-          </Text>
-        </Box>
-      </Box>
-    </Link>
+      </Link>
+    </motion.div>
   );
 };
