@@ -27,16 +27,15 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import { FaChevronCircleLeft } from "react-icons/fa";
+import Loading from "@component/loading";
 
 const MyPokemon = () => {
   const router = useRouter();
-  const [pokemonList, setPokemonList] = useGetPokemonList();
+  const [pokemonList, setPokemonList, isLoading] = useGetPokemonList();
   const [isEditing, setIsEditing] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef(null);
-
-  console.log("My Pokemon", pokemonList);
 
   const onEditingMode = () => {
     setIsEditing((state) => !state);
@@ -98,10 +97,10 @@ const MyPokemon = () => {
           <Title>My Pokemon</Title>
         </Button>
       </header>
-      <Flex as="main" position="relative" direction="column" mt={8}>
+      <Flex as="main" position="relative" direction="column" height="100%">
         {pokemonList.length > 0 ? (
           <>
-            <Flex>
+            <Flex mt={8}>
               {selected.length > 0 ? (
                 <Text fontWeight="semibold">{selected.length} Selected</Text>
               ) : (
@@ -179,6 +178,10 @@ const MyPokemon = () => {
               </LayoutGroup>
             </SimpleGrid>
           </>
+        ) : isLoading ? (
+          <Center height="100%">
+            <Loading />
+          </Center>
         ) : (
           <Center flexDirection="column" height="100%" p={8} textAlign="center">
             <Image

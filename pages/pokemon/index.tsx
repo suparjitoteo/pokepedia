@@ -15,13 +15,15 @@ import { useGetPokemonList } from "@hooks/use-pokemon";
 import { getPokemonList } from "@utils/api";
 import Head from "next/head";
 import Link from "next/link";
-import { useInfiniteQuery, useQuery } from "react-query";
+import { useInfiniteQuery } from "react-query";
 import Image from "next/image";
 import { getPokemonTotal } from "@utils/db";
 import React, { useEffect, useRef, useState } from "react";
 import useIntersectionObserver from "@hooks/use-intersection-observer";
+import { useRouter } from "next/router";
 
 const PokemonList = () => {
+  const router = useRouter();
   const [inputSearch, setInputSearch] = useState("");
   const [pokemonTotal, setPokemonTotal] = useState(0);
 
@@ -36,7 +38,13 @@ const PokemonList = () => {
       </Head>
       <header>
         <Title>POKEPEDIA</Title>
-        <form action={`/pokemon/${inputSearch.toLowerCase()}`} method="POST">
+        <form
+          action="#"
+          onSubmit={(e) => {
+            e.preventDefault();
+            router.push(`/pokemon/${inputSearch}`);
+          }}
+        >
           <SearchInput
             mt={4}
             value={inputSearch}

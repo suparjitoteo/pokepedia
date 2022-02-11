@@ -65,10 +65,10 @@ const PokemonCatchModal = ({
   let description;
   switch (status) {
     case "success":
-      description = `Gotcha. ${data.name} was caught !`;
+      description = `Gotcha. ${data.name} was caught.`;
       break;
     case "failed":
-      description = `${data.name} got away`;
+      description = `${data.name} got away.`;
       break;
     case "catching":
       description = `Catching ${data.name}...`;

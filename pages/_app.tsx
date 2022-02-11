@@ -30,7 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Box
           px={4}
           py={8}
-          maxW={["100%", "680px"]}
+          maxW={["100%", "680px", "800px"]}
           marginX="auto"
           position="relative"
           height="100%"
