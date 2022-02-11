@@ -48,7 +48,7 @@ const PokemonList = () => {
           <SearchInput
             mt={4}
             value={inputSearch}
-            onChange={(e) => setInputSearch(e.target.value)}
+            onChange={(e) => setInputSearch(e.target.value.toLowerCase())}
           />
         </form>
       </header>
