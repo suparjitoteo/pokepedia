@@ -5,7 +5,6 @@ import {
   useDisclosure,
   Link as ChakraLink,
 } from "@chakra-ui/react";
-import PokemonCatchModal from "@component/pokemon/pokemon-catch-modal";
 import Head from "next/head";
 import { PokemonDetailView } from "@component/pokemon/pokemon-detail-view";
 import { BASE_URL } from "@utils/api/fetcher";
@@ -14,6 +13,32 @@ import { GetStaticPropsContext } from "next";
 import { fetcher } from "@utils/api/fetcher";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const PokemonCatchModal = dynamic(
+  () => import("@component/pokemon/pokemon-catch-modal"),
+  {
+    loading: () => (
+      <div
+        style={{
+          position: "fixed",
+          left: 0,
+          top: 0,
+          width: "100vw",
+          height: "100%",
+          backgroundColor: "rgba(0, 0, 0, 0.48)",
+          zIndex: 1400,
+          color: "white",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        Loading...
+      </div>
+    ),
+  }
+);
 
 const PokemonDetail = ({ data, error }: { data: IPokemon; error: any }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();

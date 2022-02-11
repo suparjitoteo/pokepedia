@@ -38,7 +38,7 @@ export const PokemonDetailView = ({ data }: { data: IPokemon }) => {
         top={0}
         left={0}
         right={0}
-        height="280px"
+        height="290px"
         backgroundColor={backgroundColor}
         transition="background-color 0.5s"
       />

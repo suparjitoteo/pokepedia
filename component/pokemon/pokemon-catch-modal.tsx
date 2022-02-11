@@ -7,14 +7,16 @@ import {
   keyframes,
   Modal,
   ModalBody,
+  ModalCloseButton,
   ModalContent,
-  ModalOverlay,
   Text,
 } from "@chakra-ui/react";
 import { addPokemon, isExist } from "@utils/db";
 import { IPokemon } from "@type/pokemon-type";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import { AnimatePresence, motion } from "framer-motion";
 
 const onCatchPokemon = () => {
   return Math.random() < 0.5;
@@ -41,11 +43,27 @@ const PokemonCatchModal = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
-  const [status, setStatus] = useState<"catching" | "success" | "failed">(
-    "catching"
-  );
+  const router = useRouter();
+  const [status, setStatus] = useState<
+    "catching" | "success" | "failed" | "catched"
+  >("catching");
   const [nickname, setNickname] = useState(data.name);
   const [error, setError] = useState("");
+
+  const fadeIn = {
+    hidden: {
+      opacity: 0,
+      transition: { duration: 0.2 },
+    },
+    show: {
+      opacity: 1,
+      transition: { duration: 0.2 },
+    },
+    exit: {
+      opacity: 0,
+      transition: { duration: 0.2 },
+    },
+  };
 
   useEffect(() => {
     if (status !== "catching") {
@@ -73,6 +91,9 @@ const PokemonCatchModal = ({
     case "catching":
       description = `Catching ${data.name}...`;
       break;
+    case "catched":
+      description = `${data.name} added to collection.`;
+      break;
     default:
       throw new Error("Invalid Status");
   }
@@ -86,14 +107,30 @@ const PokemonCatchModal = ({
 
     const pokemon = { ...data, nickname };
     addPokemon(pokemon).then(() => {
-      onClose();
+      setStatus("catched");
     });
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
+      {/*
+        Actually ChakraUI has modaloverlay component.
+        But since this modal is dynamically imported in [pokemon].ts
+        I want to remove the opacity animation to prevent a slight second of flash.
+      */}
+      <div
+        style={{
+          position: "fixed",
+          left: 0,
+          top: 0,
+          width: "100vw",
+          height: "100%",
+          backgroundColor: "var(--chakra-colors-blackAlpha-600)",
+          zIndex: "var(--chakra-zIndices-modal)",
+        }}
+      />
       <ModalContent maxW="300px">
+        <ModalCloseButton />
         <ModalBody
           pt={8}
           pb={4}
@@ -115,39 +152,66 @@ const PokemonCatchModal = ({
             />
           </Box>
           <Text mt={2}>{description}</Text>
-          {status === "success" && (
-            <>
-              <FormControl isInvalid={!!error}>
-                <Input
+          <AnimatePresence>
+            {status === "success" && (
+              <motion.div
+                variants={fadeIn}
+                initial="hidden"
+                animate="show"
+                style={{ width: "100%" }}
+              >
+                <FormControl isInvalid={!!error}>
+                  <Input
+                    mt={4}
+                    value={nickname}
+                    onChange={(e) => {
+                      setNickname(e.target.value);
+                      setError("");
+                    }}
+                    autoFocus
+                  />
+                  {!!error && <FormErrorMessage>{error}</FormErrorMessage>}
+                </FormControl>
+                <Button
                   mt={4}
-                  value={nickname}
-                  onChange={(e) => {
-                    setNickname(e.target.value);
-                    setError("");
-                  }}
-                />
-                {!!error && <FormErrorMessage>{error}</FormErrorMessage>}
-              </FormControl>
+                  colorScheme="green"
+                  onClick={onAddToCollection}
+                  isFullWidth
+                >
+                  Add to collection
+                </Button>
+              </motion.div>
+            )}
+            {status === "failed" && (
               <Button
+                as={motion.button}
+                variants={fadeIn}
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                mt={4}
+                colorScheme="red"
+                isFullWidth
+                onClick={() => setStatus("catching")}
+              >
+                Try again
+              </Button>
+            )}
+            {status === "catched" && (
+              <Button
+                as={motion.button}
+                variants={fadeIn}
+                initial="hidden"
+                animate="show"
                 mt={4}
                 colorScheme="green"
-                onClick={onAddToCollection}
                 isFullWidth
+                onClick={() => router.push("/my-pokemon")}
               >
-                Add to collection
+                Go to collection
               </Button>
-            </>
-          )}
-          {status === "failed" && (
-            <Button
-              mt={4}
-              colorScheme="red"
-              isFullWidth
-              onClick={() => setStatus("catching")}
-            >
-              Try again
-            </Button>
-          )}
+            )}
+          </AnimatePresence>
         </ModalBody>
       </ModalContent>
     </Modal>
